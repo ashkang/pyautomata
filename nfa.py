@@ -1,33 +1,8 @@
-import ast, json
+from automata import automata
 
-class nfa:
+class nfa(automata):
     def __init__(self, infile):
-        self.stream = open(infile)
-        self.automaton = json.load(self.stream)
-
-    def is_initial(self, state):
-        try:
-            if self.automaton["states"][state][0] == 1:
-                return True
-        except:
-            return False
-
-    def is_final(self, state):
-        try:
-            if self.automaton["states"][state][1] == 1:
-                return True
-        except:
-            return False
-
-    def find_initial(self):
-        try:
-            for state in self.automaton["states"]:
-                if self.automaton["states"][state][0] == 1:
-                    return state
-        except:
-            pass
-
-        return ("error: no initial state defined")
+        automata.__init__(self, infile)
 
     def consume_token(self, state, instr):
         if len(instr) <= 0:
@@ -69,6 +44,3 @@ class nfa:
                 dec = dec or self.has_route(node, nextstr)
 
         return dec
-
-    def consume(self, instr):
-        return self.has_route(self.find_initial(), instr)
