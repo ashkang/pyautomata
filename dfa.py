@@ -1,7 +1,7 @@
 from automata import automata
 
 class dfa(automata):
-    def __init__(self, infile):
+    def __init__(self, infile = None):
         automata.__init__(self, infile)
 
     def consume_token(self, state, instr):
@@ -9,7 +9,7 @@ class dfa(automata):
             return
 
         token = instr[0]
-        ni = self.automaton["defs"][state][token]
+        ni = self.automaton["defs"][state][token][0]
         return ni, instr[1:]
 
     def has_route(self, state, instr):

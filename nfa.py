@@ -1,7 +1,11 @@
 from automata import automata
+from collections import defaultdict
+from pprint import pprint
+from dfa import dfa
+import json
 
 class nfa(automata):
-    def __init__(self, infile):
+    def __init__(self, infile = None):
         automata.__init__(self, infile)
 
     def consume_token(self, state, instr):
@@ -38,9 +42,73 @@ class nfa(automata):
 
         for node, nextstr in connected:
             # print "state: %s, nextstr: %s" %(node, nextstr)
-            if self.is_final(node) and (len(nextstr) == 0):
+            if self.is_final(node) and len(nextstr) == 0:
                 return True
             else:
                 dec = dec or self.has_route(node, nextstr)
 
         return dec
+
+    def to_dfa(self):
+        initial = self.find_initial()
+        dfa_dict = defaultdict()
+        dfa_dict_new = defaultdict()
+        dfa_dict_new["defs"] = defaultdict()
+        dfa_dict_new["alphabet"] = self.alphabet()
+        dfa_dict_new["states"] = defaultdict()
+
+        state_mapping = defaultdict()
+
+        allstates = []
+        initial_set = frozenset([initial])
+        allstates.append(initial_set)
+
+        for states in allstates:
+            for letter in self.alphabet():
+                # print "now processing %s with key %s" %(states, letter)
+                unioned = set()
+                for state in states:
+                    # print "\t --> %s with key %s" %(state, letter)
+                    connecteds = self.connecteds(state, letter)
+                    connecteds.extend(self.path(state, "-"))
+
+                    possibles = frozenset(connecteds)
+                    unioned = unioned.union(possibles)
+
+                key = states, letter
+                value = frozenset(unioned)
+                # print "adding (%s) with value %s to dict" %(key, value)
+                dfa_dict[key] = value
+
+                if unioned not in allstates:
+                    # print "adding %s to allstates" %unioned
+                    allstates.append(frozenset(unioned))
+
+        marker = 0
+        for state, letter in dfa_dict:
+            # print "%s with %s goes to %s" %(state, letter, dfa_dict[state, letter])
+            if state not in state_mapping:
+                new_name = "Q%s" %marker
+                state_mapping[state] = new_name
+                marker = marker + 1
+                dfa_dict_new["states"][new_name] = [ 0, 0 ]
+            else:
+                new_name = state_mapping[state]
+
+        for state, letter in dfa_dict:
+            mapped = state_mapping[state]
+            if mapped not in dfa_dict_new["defs"]:
+                dfa_dict_new["defs"][mapped] = defaultdict()
+
+            if letter not in dfa_dict_new["defs"][mapped]:
+                dfa_dict_new["defs"][mapped][letter] = []
+
+            dfa_dict_new["defs"][mapped][letter].append(state_mapping[dfa_dict[state, letter]])
+
+        # for state in dfa_dict_new["defs"]:
+        #     for letter in dfa_dict_new["defs"][state]:
+                # print "%s with %s goes to %s" %(state, letter, dfa_dict_new["defs"][state][letter])
+
+        result = json.dumps(dfa_dict_new)
+        # pprint(result)
+        return dfa_dict_new
