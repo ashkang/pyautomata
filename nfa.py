@@ -93,11 +93,13 @@ class nfa(automata):
                 marker = marker + 1
                 is_initial = 0
                 is_final = 0
+                if state == initial_set:
+                    is_initial = 1
                 for orig_state in dfa_dict[state, letter]:
                     if self.is_final(orig_state):
                         is_final = 1
 
-                dfa_dict_new["states"][new_name] = [ 0, is_final ]
+                dfa_dict_new["states"][new_name] = [ is_initial, is_final ]
             else:
                 new_name = state_mapping[state]
 
