@@ -6,7 +6,7 @@ class automata:
         if infile is not None:
             self.stream = open(infile)
             self.automaton = json.load(self.stream)
-        self.graph = pygraphviz.AGraph(strict=False, directed=True, encoding='UTF-8')
+        self.graph = pygraphviz.AGraph(strict=False, directed=True, encoding='UTF-8', rankdir='LR')
 
 
     def set(self, automaton):
@@ -65,6 +65,12 @@ class automata:
             return []
 
     def draw(self, outfile):
+        for state in self.automaton["defs"]:
+            shapeatr = "circle"
+            if self.is_final(state):
+                shapeatr = "doublecircle"
+            self.graph.add_node(state, shape=shapeatr)
+
         for state in self.automaton["defs"]:
             for out in self.automaton["defs"][state]:
                 for peer in self.automaton["defs"][state][out]:
