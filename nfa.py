@@ -84,6 +84,7 @@ class nfa(automata):
                     # print "adding %s to allstates" %unioned
                     allstates.append(frozenset(unioned))
 
+        print dfa_dict
         marker = 0
         for state, letter in dfa_dict:
             # print "%s with %s goes to %s" %(state, letter, dfa_dict[state, letter])
@@ -95,7 +96,7 @@ class nfa(automata):
                 is_final = 0
                 if state == initial_set:
                     is_initial = 1
-                for orig_state in dfa_dict[state, letter]:
+                for orig_state in state:
                     if self.is_final(orig_state):
                         is_final = 1
 
