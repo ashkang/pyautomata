@@ -5,8 +5,8 @@ from dfa import dfa
 import json
 
 class nfa(automata):
-    def __init__(self, infile = None):
-        automata.__init__(self, infile)
+    def __init__(self, infile = None, bsimplify = True):
+        automata.__init__(self, infile, bsimplify)
 
     def consume_token(self, state, instr):
         if len(instr) <= 0:
@@ -49,6 +49,20 @@ class nfa(automata):
 
         return dec
 
+    def connecteds(self, state, letter):
+        connecteds = []
+        try:
+            connecteds = self.automaton["defs"][state][letter]
+            lambdas = self.path(state, "-")
+            connecteds.extend(lambdas)
+
+            for lambda_node in lambdas:
+                connnecteds.extend(self.connecteds(lambda_node, letter))
+
+            return connecteds
+        except:
+            return connecteds
+
     def to_dfa(self):
         initial = self.find_initial()
         dfa_dict = defaultdict()
@@ -84,7 +98,6 @@ class nfa(automata):
                     # print "adding %s to allstates" %unioned
                     allstates.append(frozenset(unioned))
 
-        print dfa_dict
         marker = 0
         for state, letter in dfa_dict:
             # print "%s with %s goes to %s" %(state, letter, dfa_dict[state, letter])

@@ -1,8 +1,8 @@
 from automata import automata
 
 class dfa(automata):
-    def __init__(self, infile = None):
-        automata.__init__(self, infile)
+    def __init__(self, infile = None, bsimplify = True):
+        automata.__init__(self, infile, bsimplify)
 
     def consume_token(self, state, instr):
         if len(instr) <= 0:
@@ -20,3 +20,9 @@ class dfa(automata):
 
         ni, nextstr = self.consume_token(state, instr)
         return self.has_route(ni, nextstr)
+
+    def connecteds(self, state, letter):
+        try:
+            return self.automaton["defs"][state][letter]
+        except:
+            return []

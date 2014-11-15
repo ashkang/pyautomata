@@ -10,4 +10,3 @@ d0.set(n0.to_dfa())
 d0.draw('cdfa.png')
 
 print "accepts %s: %s" %(instr, n0.consume(instr))
-print n0.path("q0", "-")
